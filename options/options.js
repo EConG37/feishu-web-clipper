@@ -85,13 +85,64 @@ function categoryCreator(group, def) {
   const note = document.createElement('p'); note.className = 'category-create-note'; note.textContent = cloud ? '已同步的未绑定子表可直接选择，分类名称会按表名自动填写。' : '可先输入分类名称；同步飞书后还能从下拉框绑定新子表。'; create.append(note);
   return create;
 }
+// 一级「提示词类型」创建器：新增一个与「生图提示词 / 视频提示词」同级的自定义类型
+function groupCreator() {
+  const create = document.createElement('details'); create.className = 'group-create';
+  const summary = document.createElement('summary'); summary.textContent = '＋ 添加提示词类型（一级分类）'; create.append(summary);
+  const fields = document.createElement('div'); fields.className = 'group-create-fields';
+  const nameLabel = document.createElement('label'); nameLabel.className = 'group-create-field'; nameLabel.append(document.createTextNode('类型名称'));
+  const nameInput = document.createElement('input'); nameInput.type = 'text'; nameInput.placeholder = '例如：音频提示词'; nameInput.setAttribute('aria-label', '新提示词类型名称'); nameLabel.append(nameInput);
+  const add = document.createElement('button'); add.type = 'button'; add.className = 'group-add'; add.textContent = '添加类型';
+  add.addEventListener('click', () => {
+    const name = nameInput.value.trim();
+    if (!name) { message('请填写类型名称', true); nameInput.focus(); return; }
+    if (['__proto__', 'prototype', 'constructor'].includes(name)) { message('这个类型名称不能使用，请换一个名称', true); nameInput.focus(); return; }
+    if (Object.prototype.hasOwnProperty.call(taxonomy, name)) { message(`已经有「${name}」这个类型`, true); nameInput.focus(); return; }
+    taxonomy[name] = { prefix: '', children: {} };
+    dirty(); render();
+    message(`已添加类型「${name}」，请在下方为它添加至少一个分类并绑定飞书子表。`);
+    const wrap = [...editor.querySelectorAll('.taxonomy-group')].find(item => item.dataset.group === name);
+    if (wrap) { wrap.scrollIntoView({ block: 'nearest' }); const dc = wrap.querySelector('.category-create'); if (dc) dc.open = true; }
+  });
+  fields.append(nameLabel, add); create.append(fields);
+  const note = document.createElement('p'); note.className = 'group-create-note'; note.textContent = '类型名称会写入子表的「分类」多选字段。请先在飞书子表里为该字段加上同名选项，再在下方绑定子表；插件不会修改飞书表格。'; create.append(note);
+  return create;
+}
+// 重命名一级类型：按原顺序重建对象换键，并同步迁移绑定警告的键
+function renameGroup(oldName, rawNew) {
+  const newName = (rawNew || '').trim();
+  if (newName === oldName) { render(); return; }
+  if (!newName) { message('类型名称不能为空，已恢复原名称', true); render(); return; }
+  if (['__proto__', 'prototype', 'constructor'].includes(newName)) { message('这个类型名称不能使用，已恢复原名称', true); render(); return; }
+  if (Object.prototype.hasOwnProperty.call(taxonomy, newName)) { message(`已经有「${newName}」这个类型，已恢复原名称`, true); render(); return; }
+  const next = {};
+  for (const [g, def] of Object.entries(taxonomy)) next[g === oldName ? newName : g] = def;
+  taxonomy = next;
+  for (const [key, val] of [...bindingWarnings.entries()]) {
+    try { const [g, n] = JSON.parse(key); if (g === oldName) { bindingWarnings.delete(key); bindingWarnings.set(JSON.stringify([newName, n]), val); } } catch { /* 忽略损坏的键 */ }
+  }
+  dirty(); render();
+  message(`已将类型改名为「${newName}」。请在其绑定子表的「分类」多选字段里加上同名选项，否则剪藏保存会失败。`);
+}
 function render() {
   const expanded = new Map([...editor.querySelectorAll(".taxonomy-card")].map(card => [card.dataset.key, card.open]));
   editor.replaceChildren();
+  editor.append(groupCreator());
   for (const [group, def] of Object.entries(taxonomy)) {
-    const heading = document.createElement('h3'); heading.textContent = group; editor.append(heading);
-    editor.append(field('主分类前缀', def.prefix, value => { def.prefix = value; }));
-    editor.append(categoryCreator(group, def));
+    const groupWrap = document.createElement('div'); groupWrap.className = 'taxonomy-group'; groupWrap.dataset.group = group;
+    const heading = document.createElement('h3'); heading.textContent = group; groupWrap.append(heading);
+    groupWrap.append(field('类型名称', group, value => { renameGroup(group, value); }));
+    const groupActions = document.createElement('div'); groupActions.className = 'group-actions';
+    const groupRemove = document.createElement('button'); groupRemove.type = 'button'; groupRemove.className = 'group-remove'; groupRemove.textContent = '删除这个提示词类型';
+    groupRemove.addEventListener('click', () => {
+      const count = Object.keys(def.children || {}).length;
+      if (!confirm(`确定删除类型「${group}」及其下 ${count} 个分类吗？保存设置后，剪藏面板将不再显示它们。`)) return;
+      delete taxonomy[group];
+      for (const key of [...bindingWarnings.keys()]) { try { if (JSON.parse(key)[0] === group) bindingWarnings.delete(key); } catch { /* 忽略损坏的键 */ } }
+      dirty(); render(); message(`已删除类型「${group}」，点击“保存设置”后生效。`);
+    });
+    groupActions.append(groupRemove); groupWrap.append(groupActions);
+    groupWrap.append(categoryCreator(group, def));
     for (const [name, child] of Object.entries(def.children)) {
       const card = document.createElement('details'); card.className = 'taxonomy-card'; card.dataset.key = JSON.stringify([group, name]); card.open = expanded.get(card.dataset.key) ?? (name === '成品提示词'); const title = document.createElement('summary'); title.textContent = `${name} · ${(child.styles || []).length} 个风格 / ${(child.models || []).length} 个模型`; card.append(title);
       const table = cloud?.tables.find(t => t.name === child.table);
@@ -123,8 +174,9 @@ function render() {
         delete def.children[name]; bindingWarnings.delete(card.dataset.key); dirty(); render(); message(`已删除「${name}」，点击“保存设置”后生效。`);
       });
       actions.append(remove); card.append(actions);
-      editor.append(card);
+      groupWrap.append(card);
     }
+    editor.append(groupWrap);
   }
 }
 async function load() { const s = await chrome.storage.local.get([CONFIG_KEY,TAXONOMY_KEY]); const c = s[CONFIG_KEY] || {}; $('appId').value = c.appId || ''; $('appSecret').value = c.appSecret || ''; $('appToken').value = c.appTokenRaw || c.appToken || ''; $('auto-classify').checked = c.autoClassify !== false; taxonomy = migrateTaxonomy(s[TAXONOMY_KEY]); render(); }
