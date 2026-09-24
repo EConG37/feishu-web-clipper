@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>网页剪藏</title>
+  <link rel="stylesheet" href="../shared/ui.css" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <div class="brand"><img class="brand-mark" src="../icons/icon128.png" width="34" height="34" alt="" /><h1>网页剪藏</h1></div>
+    <button id="open-options" class="text-button" type="button">设置 ↗</button>
+  </header>
+  <main>
+    <div class="source-line"><span class="source-dot"></span><span id="page-source">正在读取当前网页…</span></div>
+    <section class="field title-field">
+      <label for="title">标题</label>
+      <input id="title" type="text" placeholder="为这次收藏起个名字" />
+    </section>
+    <section class="field">
+      <div class="section-label"><span id="category-label">分类</span><span class="hint">类型 → 分类 → 风格 → 模型</span></div>
+      <div id="chips" class="chips" role="group" aria-labelledby="category-label"></div>
+      <div id="subcat-chips" class="chips model-chips" role="group" aria-label="二级分类" hidden></div>
+      <div id="style-chips" class="chips model-chips" role="group" aria-label="风格" hidden></div>
+      <div id="model-chips" class="chips model-chips" role="group" aria-label="使用模型" hidden></div>
+    </section>
+    <section class="field cover-section">
+      <div class="section-label"><span id="cover-label">封面图片 <span id="cover-count" class="count">0</span></span><button id="refresh-covers" class="text-button" type="button">刷新图片</button></div>
+      <div id="cover-row" class="cover-row" role="group" aria-labelledby="cover-label"></div>
+      <div class="selection-line"><span id="selection-summary" aria-live="polite">未选择封面 · 仅保存文字</span><button id="clear-cover" class="text-button" type="button" hidden>取消选择</button></div>
+    </section>
+    <section class="field excerpt-field">
+      <div class="section-label"><label for="excerpt">内容摘录</label><span class="hint">可编辑 · Markdown</span></div>
+      <textarea id="excerpt" spellcheck="false" placeholder="自动提取网页正文，也可以写下你的摘录…"></textarea>
+      <div id="word-count" class="hint word-count">0 字</div>
+    </section>
+  </main>
+  <footer>
+    <div class="actions"><button id="clip-btn" class="primary" type="button" disabled>保存到飞书 <span aria-hidden="true">↗</span></button><button id="close-btn" class="ghost" type="button">关闭</button></div>
+    <div id="status" role="status" aria-live="polite" aria-atomic="true"></div>
+  </footer>
+  <script src="../shared/constants.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

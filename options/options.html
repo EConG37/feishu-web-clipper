@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>网页剪藏 · 设置</title>
+  <link rel="stylesheet" href="../shared/ui.css" />
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <header class="topbar"><div class="brand"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M7 4.5h10a1 1 0 0 1 1 1v15l-6-4-6 4v-15a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 8h6M9 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><strong>留住灵感</strong><span class="brand-divider"></span><span class="hint">网页剪藏</span></div><span class="local-badge"><span></span>本机设置</span></header>
+  <div class="settings-layout">
+  <aside class="sidebar">
+    <div class="sidebar-label">偏好设置</div>
+    <nav aria-label="设置导航"><a href="#collection" class="active" aria-current="location"><span>01</span>收藏位置</a><a href="#connection"><span>02</span>飞书连接</a><a href="#organization"><span>03</span>分类与模型</a></nav>
+    <div class="sidebar-note"><span class="note-mark" aria-hidden="true">↳</span><strong>从这里，连接你的收藏库</strong><p>设置一次，以后在网页中选图、摘录，再保存到飞书。</p><a href="#usage-guide" id="guide-link">第一次使用？查看说明 ↗</a></div>
+  </aside>
+  <main>
+    <div class="page-heading"><span class="eyebrow">你的灵感收藏库</span><h1>让灵感，有序归档。</h1><p>连接飞书，定好分类。把喜欢的图片和提示词，放在触手可及的地方。</p></div>
+    <form id="settings-form">
+      <section class="settings-section" id="collection">
+        <div class="section-intro"><span class="step">01</span><h2>收藏位置</h2><p>选择保存提示词的多维表格。</p></div>
+        <div class="section-fields">
+          <div class="field"><label for="appToken">多维表格链接 <span class="required">必填</span></label><input id="appToken" type="text" required placeholder="粘贴你的飞书多维表格链接" /><p class="hint">支持完整 /base/ 链接或 app_token；剪藏时按分类自动写入对应数据表，无需指定表。</p></div>
+          <details class="guide" id="usage-guide">
+            <summary>使用说明：复制模板、连接飞书与三级分类</summary>
+            <ol>
+              <li><a href="https://zk5ckzju3h.feishu.cn/base/SCEObFKEvaNjNhsJT3bcZuoKnSe?from=from_copylink" target="_blank" rel="noopener noreferrer">打开新版提示词模板 ↗</a>，在右上角「…」中创建副本。模板按分类分表存储，具体以模板当前内容为准。</li>
+              <li>打开自己的副本，复制浏览器地址栏中的完整链接，填入上方。模板本身不能用来保存剪藏。</li>
+              <li>在下方填写飞书应用的 App ID 和 App Secret，并按「连接飞书」说明开通权限、发布应用。在副本右上角「…」→「添加文档应用」，添加同一个应用。</li>
+              <li>按需调整分类与模型，点击「保存设置」。打开要收藏的网页，点击插件图标：选择封面、编辑提示词，点击「下一步：确认分类」，检查本地推荐并调整分类、风格和模型，点击「保存到飞书」，记录会写入分类对应的数据表。</li>
+            </ol>
+            <p><strong>三级分类与数据表</strong></p>
+            <ul>
+              <li>一级「提示词类型」：生图提示词 / 视频提示词，写入各表的「分类」多选字段。</li>
+              <li>二级「分类」：生图下分人物、环境、生物、海报；视频下分镜头画面、运镜方案、影视效应、人物情绪、成品提示词，也可添加“创意视频”等自定义分类。它决定记录写入哪张数据表，并以「前缀-分类」写入该表的「主分类」单选字段（如 生图-人物）。</li>
+              <li>三级「风格」单选，写入「子分类」字段（如 古风、仙侠、动漫）；「使用模型」单选（如 MJ、seedance2.5）。各表可用的风格与模型略有不同，与模板一致。</li>
+            </ul>
+            <p><strong>同步与调整分类</strong></p>
+            <ul><li>先保存连接配置，再点击「从飞书同步选项」。插件读取目标子表的风格与模型，并兼容「视频参数-…」的子表名称。</li><li>需要新增与“人物情绪”等同级的分类时，在对应提示词类型下点「添加同级分类」，填写名称并绑定新增子表；也可删除不再使用的分类。</li><li>展开分类卡片查看目标子表和主分类，点击标签上的 × 移除选项；同步后可以从下拉框添加表格已有选项。</li><li>同步结果先在本页预览，点击「保存设置」后才用于剪藏；同步不会修改飞书表格。</li></ul>
+            <p>「可直接复制提示词」「风格码」为带 AI 配置的文本字段，「工作台分类」为单选字段，由飞书侧处理，插件不填写。「标题」「内容」为文本，「链接」为链接字段，「封面」为附件，由插件按剪藏内容填写。</p>
+            <p><strong>成品视频：</strong>支持网页中可直接读取的 MP4 视频，提供预览和来源选择。勾选「同时保存视频」后，可保存到任意分类；目标子表需有「视频」附件字段，也兼容「成品视频」「参考视频」。视频与封面分开保存，单个视频最多 30MB，超过 20MB 自动分片上传。</p>
+            <p>候选图片可横向浏览，不会向下挤占提示词区域。「上一步」可返回编辑，Esc 或右上角 × 可收起浮层；在同一页面再次点击插件图标会保留草稿。刷新、跳转网页会结束当前草稿。浏览器设置页等受限页面无法打开浮层，请在普通网页使用。</p>
+          </details>
+        </div>
+      </section>
+      <section class="settings-section" id="connection">
+        <div class="section-intro"><span class="step">02</span><h2>连接飞书</h2><p>使用你的企业自建应用。</p></div>
+        <div class="section-fields">
+          <div class="field"><label for="appId">App ID <span class="required">必填</span></label><input id="appId" type="text" required placeholder="cli_xxxxxxxx" autocomplete="off" spellcheck="false" /></div>
+          <div class="field"><label for="appSecret">App Secret <span class="required">必填</span></label><input id="appSecret" type="password" required placeholder="输入应用密钥" autocomplete="off" /><p class="hint">凭据仅保存在本机浏览器中，用于连接飞书。</p></div>
+          <p class="help-text">在 <a href="https://open.feishu.cn/app" target="_blank" rel="noopener noreferrer">飞书开放平台 ↗</a> 获取应用凭据。开通多维表格读写（bitable:app）与素材上传权限后，发布应用版本。</p>
+        </div>
+      </section>
+      <section class="settings-section" id="organization">
+        <div class="section-intro"><span class="step">03</span><h2>分类与模型</h2><p>三级分类体系，决定剪藏时可选什么、写到哪里。</p></div>
+        <div class="section-fields">
+          <p class="help-text">提示词类型 → 分类卡片 → 风格与模型。展开卡片即可调整，无需填写特殊格式。<br>先保存连接，再同步飞书选项，检查后保存。表格新增风格或模型后，再同步一次即可更新。</p>
+          <label class="auto-classify-setting"><input id="auto-classify" type="checkbox" checked /> 根据提示词自动推荐分类</label>
+          <p class="help-text">使用本地规则，不需要模型接口、不分析图片或视频。明确的分类会预先选好，可在编辑页直接保存；不确定项留空。手动改过的分类会保留，飞书里的 AI 字段可以继续负责入库后的整理。</p>
+          <button type="button" id="sync-schema">从飞书同步选项</button>
+          <div id="taxonomy-editor"></div>
+        </div>
+      </section>
+      <div class="actions"><div class="save-copy"><strong id="save-state">按你的习惯，整理每一份灵感</strong><span id="msg" role="status" aria-live="polite">设置保存在当前浏览器中</span></div><button id="save" class="primary" type="submit">保存设置 <span aria-hidden="true">→</span></button></div>
+    </form>
+    <p class="page-footer">只收藏你想留下的。</p>
+  </main>
+  </div>
+  <script src="../shared/constants.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

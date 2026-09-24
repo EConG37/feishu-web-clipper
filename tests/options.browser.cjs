@@ -1,0 +1,30 @@
+async (page) => {
+  const assert = (ok, message) => { if (!ok) throw new Error(message); };
+  const worker=page.context().serviceWorkers()[0];
+  const extensionId=worker.url().split('/')[2];
+  await page.goto('chrome-extension://'+extensionId+'/options/options.html');
+  await page.setViewportSize({width:1380,height:1000});
+  await page.locator('#appId').fill('cli_fixture');
+  await page.locator('#appSecret').fill('fixture-only');
+  await page.locator('#appToken').fill('https://example.feishu.cn/base/baseFixture?table=tblFixture');
+  assert((await page.locator('#save-state').textContent()).includes('未保存'),'dirty state visible');
+  await page.locator('#save').click();
+  await page.locator('#msg.ok').waitFor();
+  const cfg=await worker.evaluate(async()=> (await chrome.storage.local.get('feishu_clip_config')).feishu_clip_config);
+  assert(cfg.tableId==='tblFixture','settings save linked table');
+  await page.evaluate(()=>scrollTo(0,0));
+  await page.screenshot({path:'output/playwright/options-unified-131.png',fullPage:true});
+  assert(await page.locator('#save').evaluate(el=>getComputedStyle(el).backgroundColor)==='rgb(89, 84, 223)','accent matches front panel');
+  await page.locator('#guide-link').click();
+  assert(await page.locator('#usage-guide').getAttribute('open')!==null,'guide link opens instructions');
+  assert((await page.locator('#usage-guide a').getAttribute('href')).includes('ZwXJb3TZVazIuvsqaVacB0Kani2'),'new template retained');
+  await page.locator('#usage-guide summary').click();
+  await page.locator('#appToken').fill('https://zk5ckzju3h.feishu.cn/base/ZwXJb3TZVazIuvsqaVacB0Kani2');
+  await page.locator('#save').click();
+  assert((await page.locator('#msg.err').textContent()).includes('创建副本'),'template still rejected');
+  await page.setViewportSize({width:390,height:844});
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no narrow overflow');
+  await page.locator('#categories').fill('生图提示词\n视频提示词');
+  await page.screenshot({path:'output/playwright/options-unified-small-131.png',fullPage:true});
+  console.log('PASS: real options page, unified accent, saved settings, dirty feedback, help expansion, template guard, mobile layout.');
+}

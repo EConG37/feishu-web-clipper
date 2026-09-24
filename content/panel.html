@@ -1,0 +1,37 @@
+<section class="panel" role="dialog" aria-label="网页剪藏" aria-modal="false">
+  <header class="topbar">
+    <div class="brand"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M7 4.5h10a1 1 0 0 1 1 1v15l-6-4-6 4v-15a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 8h6M9 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><strong>留住灵感</strong></div>
+    <div class="header-actions"><button id="settings" class="icon-button" aria-label="打开设置" title="设置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m9 4 1-2h4l1 2 2 1 2 0 2 3-1 2v3l1 2-2 3h-2l-2 1-1 2h-4l-1-2-2-1H5l-2-3 1-2v-3L3 8l2-3h2Z" transform="translate(1 1) scale(.9)"/><circle cx="12" cy="12" r="3"/></svg></button><button id="close" class="icon-button" aria-label="关闭剪藏" title="关闭 · Esc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+  </header>
+  <nav class="steps" aria-label="剪藏视图"><span id="step-one" class="step active" aria-current="step"><b>1</b> 素材与提示词</span><span class="step-line"></span><span id="step-two" class="step"><b>2</b> 确认分类</span></nav>
+  <main>
+    <section id="content-step" class="content-step">
+      <div class="source"><span class="source-dot"></span><span id="source"></span><span class="source-note">网页剪藏</span></div>
+      <label class="sr-only" for="clip-title">收藏标题</label><input id="clip-title" class="title-input" placeholder="为这次灵感起个名字" maxlength="1000" autocomplete="off" />
+      <section id="video-section" class="video-section" aria-label="成品视频" hidden>
+        <div class="label-row"><label class="label"><input type="checkbox" id="include-video" /> 同时保存视频</label><button id="refresh-video" class="text-button">刷新视频</button></div>
+        <select id="video-choice" aria-label="选择视频与清晰度"></select>
+        <video id="video-preview" controls playsinline preload="none"></video>
+        <p id="video-hint" class="micro">视频上传至所选分类的数据表附件字段，封面另存。单个视频最多 30MB。</p>
+      </section>
+      <section class="images-section" aria-label="选择封面图片">
+        <div class="label-row"><span class="label">封面图片 <span id="image-count" class="muted">0</span></span><button id="refresh" class="text-button">刷新图片</button></div>
+        <div id="image-preview" class="image-preview"><img id="preview-image" alt="当前选中的封面" hidden /><div id="preview-empty" class="preview-empty"><span class="empty-symbol" aria-hidden="true">▧</span><span>选一张图片，为灵感留个封面</span></div><button id="clear-image" class="clear-image" hidden>移除封面 ×</button><span id="preview-index" hidden></span></div>
+        <div id="thumbnails" class="thumbnails" role="group" aria-label="候选图片"></div>
+        <p id="image-hint" class="micro">不选图片也可以保存</p>
+      </section>
+      <section class="editor"><div class="label-row"><label class="label" for="clip-content">提示词 / 内容摘录</label><span id="word-count" class="muted">0 字</span></div><textarea id="clip-content" placeholder="正在提取网页内容…" spellcheck="false"></textarea><span class="micro">直接编辑，只留下你想收藏的部分</span></section>
+    </section>
+    <section id="organize-step" class="organize-step" hidden>
+      <div class="review-card"><img id="review-image" alt="待保存封面" hidden /><span id="review-placeholder" class="review-placeholder" aria-hidden="true">≡</span><div><strong id="review-title"></strong><span id="review-detail" class="muted"></span></div><button id="edit" class="text-button">编辑</button></div>
+      <div class="section-heading"><h2>给灵感一个位置</h2><p>选好类型和分类，保存时自动写入对应数据表。</p></div>
+      <div class="label-row"><span class="label" id="groups-label">提示词类型</span><span class="muted">选一个</span></div><div id="groups" class="groups" role="group" aria-labelledby="groups-label"></div>
+      <div class="level-section"><div class="label-row"><span class="label" id="subcats-label">分类</span><span class="muted" id="subcats-hint">先选类型</span></div><p id="subcat-empty" class="model-empty">先选择提示词类型</p><div id="subcategories" class="groups" role="group" aria-labelledby="subcats-label"></div></div>
+      <div class="level-section"><div class="label-row"><span class="label" id="styles-label">风格</span><span class="muted">选一个 · 可选</span></div><p id="style-empty" class="model-empty">先选分类，再选风格</p><div id="styles" class="models" role="group" aria-labelledby="styles-label"></div></div>
+      <div class="model-section"><div class="label-row"><span class="label" id="models-label">使用模型</span><span class="muted">选一个 · 可选</span></div><p id="model-empty" class="model-empty">先选分类，再选择对应模型</p><div id="models" class="models" role="group" aria-labelledby="models-label"></div></div>
+      <div class="destination"><span aria-hidden="true">↳</span><div><span class="micro">保存到</span><strong id="destination">飞书收藏库</strong></div><button id="connection" class="text-button">设置</button></div>
+    </section>
+    <section id="success-step" class="success-step" hidden><div class="success-symbol" aria-hidden="true">✓</div><h2>灵感，收好了。</h2><p id="success-detail"></p><div id="success-title"></div><span class="micro">下次需要时，在飞书收藏库找到它。</span></section>
+  </main>
+  <footer><section id="classification-summary" aria-label="保存分类"><div class="label-row"><span id="classification-label" class="label">保存分类</span><div class="classification-actions"><button id="reclassify" class="text-button">重新识别</button><button id="edit-classification" class="text-button">修改</button></div></div><p id="classification-path">等待提示词</p><p id="classification-note" class="micro" aria-live="polite">只根据提示词本地匹配，不分析图片和视频</p></section><div id="status" role="status" aria-live="polite"></div><div class="footer-actions"><button id="back" class="secondary" hidden>返回编辑</button><button id="primary" class="primary" disabled><span id="primary-label">正在读取…</span><span id="primary-arrow" aria-hidden="true">→</span></button></div><p id="footer-hint" class="footer-hint">草稿仅保留在当前页面 · Esc 收起</p></footer>
+</section>
