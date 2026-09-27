@@ -179,7 +179,7 @@ function render() {
     editor.append(groupWrap);
   }
 }
-async function load() { const s = await chrome.storage.local.get([CONFIG_KEY,TAXONOMY_KEY]); const c = s[CONFIG_KEY] || {}; $('appId').value = c.appId || ''; $('appSecret').value = c.appSecret || ''; $('appToken').value = c.appTokenRaw || c.appToken || ''; $('auto-classify').checked = c.autoClassify !== false; taxonomy = migrateTaxonomy(s[TAXONOMY_KEY]); render(); }
+async function load() { const s = await chrome.storage.local.get([CONFIG_KEY,TAXONOMY_KEY]); const c = s[CONFIG_KEY] || {}; $('appId').value = c.appId || ''; $('appSecret').value = c.appSecret || ''; $('appToken').value = c.appTokenRaw || c.appToken || ''; $('auto-classify').checked = c.autoClassify !== false; taxonomy = migrateTaxonomy(normalizeTaxonomy(s[TAXONOMY_KEY])); render(); }
 sync.addEventListener('click', async () => {
   sync.disabled = true;
   try {

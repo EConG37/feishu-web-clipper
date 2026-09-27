@@ -4,6 +4,9 @@ output/
 # Playwright 本地缓存
 .playwright-cli/
 
+# 打包临时目录
+.ziptmp/
+
 # 发布打包产物（通过 GitHub Releases 分发）
 *.zip
 

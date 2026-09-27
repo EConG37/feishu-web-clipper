@@ -29,7 +29,7 @@ function setup(options = {}) {
         { field_name: '子分类', type: 3, property: { options: [{ name: '古风' }] } },
         { field_name: '使用模型', type: 3, property: { options: [{ name: 'MJ' }, { name: 'seedance2.5' }] } }
       ] } });
-      if (url.includes('/tables?')) return Response.json({ code: 0, data: { items: [{ table_id: 'tblTarget', name: '生图提示词-人物' }] } });
+      if (url.includes('/tables?')) return Response.json({ code: 0, data: { items: [{ table_id: 'tblTarget', name: '生图提示词-人物' }, { table_id: 'tblVideo', name: '视频提示词-镜头画面' }] } });
       if (options.imageError) throw new Error('HTTP 403');
       return new Response(options.htmlImage ? '<html>login</html>' : png, { headers: { 'Content-Type': options.htmlImage ? 'text/html' : 'image/png' } });
     }
@@ -118,16 +118,20 @@ test('selected model writes to 使用模型 select field', async () => {
   assert.equal((await app.save({ model: 'MJ' })).ok, true);
   const fields = JSON.parse(app.calls.find((c) => c.url.endsWith('/records')).init.body).fields;
   assert.equal(fields['使用模型'], 'MJ');
-  await app.save({ model: 'seedance2.5', categories: ['视频提示词'] });
-  const second = JSON.parse(app.calls.filter((c) => c.url.endsWith('/records')).at(-1).init.body).fields;
-  assert.deepEqual(second['分类'], ['视频提示词']);
-  assert.equal(second['使用模型'], 'seedance2.5');
+  assert.equal((await app.save({ model: 'seedance2.5', group: '视频提示词', subcategory: '镜头画面', style: '' })).ok, true);
+  const second = app.calls.filter((c) => c.url.endsWith('/records')).at(-1);
+  assert.match(second.url, /\/tblVideo\/records$/);
+  const secondFields = JSON.parse(second.init.body).fields;
+  assert.deepEqual(secondFields['分类'], ['视频提示词']);
+  assert.equal(secondFields['主分类'], '视频-镜头画面');
+  assert.equal(secondFields['使用模型'], 'seedance2.5');
 });
-test('model outside configured list is not written', async () => {
+test('model outside configured list rejects the save before creating a record', async () => {
   const app = setup();
-  assert.equal((await app.save({ model: 'unknown-model' })).ok, true);
-  const fields = JSON.parse(app.calls.find((c) => c.url.endsWith('/records')).init.body).fields;
-  assert.equal('使用模型' in fields, false);
+  const result = await app.save({ model: 'unknown-model' });
+  assert.equal(result.ok, false);
+  assert.match(result.error, /不在当前分类中/);
+  assert.equal(app.calls.some((c) => c.url.endsWith('/records')), false);
 });
 test('template target cannot receive records', async () => {
   for (const appToken of ['ZwXJb3TZVazIuvsqaVacB0Kani2', 'XKZJbYtmNaGXNWsOmRycXhUMnXf']) {

@@ -45,7 +45,7 @@ globalThis.ClipClassifier = (() => {
     // Explicit user-authored classification labels take precedence over broad signals.
     const named=[];
     for (const [g,def] of Object.entries(taxonomy)) for (const n of Object.keys(def.children || {}))
-      if (new RegExp(`(?:分类|归档)\\s*[:：]\\s*(?:${escape(g)}\\s*[/>→-]\\s*)?${escape(n)}(?:\\s|$|[，,；;])`).test(text)) named.push([g,n]);
+      if (new RegExp(`(?:分类|归档)\\s*[:：]\\s*(?:${escape(g)}\\s*[/>→-]\\s*)?${escape(n)}(?:\\s|$|[，,；;。])`).test(text)) named.push([g,n]);
     if (named.length > 1) return empty('提示词包含多个分类，请选择主要用途');
     if (named.length === 1) [group,subcategory]=named[0];
     if (!subcategory) {

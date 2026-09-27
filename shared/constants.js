@@ -15,6 +15,21 @@ const TEMPLATE_BASE_TOKENS = new Set([
 // 三级分类体系（可在设置页自定义）：
 // 一级「提示词类型」→ 二级「分类」（决定写入哪张数据表）→ 风格（「子分类」字段）与模型（「使用模型」字段）
 // 「主分类」字段写入「前缀-二级分类」，例如 prefix=生图 + 人物 → 生图-人物；前缀留空时只写二级名称
+
+// 校验自定义分类体系；损坏（非对象、缺少 children 等）时返回 null，由 migrateTaxonomy 回落到默认结构
+function normalizeTaxonomy(input) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return null;
+  let childCount = 0;
+  for (const group of Object.values(input)) {
+    if (!group || typeof group !== "object" || !group.children) return null;
+    for (const child of Object.values(group.children)) {
+      if (!child || typeof child !== "object") return null;
+      childCount++;
+    }
+  }
+  return childCount ? input : null;
+}
+
 function migrateTaxonomy(stored) {
   if (!stored || !Object.keys(stored).length) return structuredClone(DEFAULT_TAXONOMY);
   const next = structuredClone(stored);

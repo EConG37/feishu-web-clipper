@@ -58,19 +58,7 @@ async function getConfig() {
   return cfg || {};
 }
 
-// 校验自定义分类体系；损坏时回落到默认结构
-function normalizeTaxonomy(input) {
-  if (!input || typeof input !== "object" || Array.isArray(input)) return null;
-  let childCount = 0;
-  for (const group of Object.values(input)) {
-    if (!group || typeof group !== "object" || !group.children) return null;
-    for (const child of Object.values(group.children)) {
-      if (!child || typeof child !== "object") return null;
-      childCount++;
-    }
-  }
-  return childCount ? input : null;
-}
+// 分类体系校验函数 normalizeTaxonomy 由 shared/constants.js 提供
 
 async function getTaxonomy() {
   const { [TAXONOMY_KEY]: stored } = await chrome.storage.local.get(TAXONOMY_KEY);

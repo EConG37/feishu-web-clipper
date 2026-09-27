@@ -346,20 +346,26 @@
     }
   }
 
-  // SPA（即梦等）的面板内容延迟渲染；短暂轮询，连续两次结果一致即提前结束。
+  // SPA（即梦等）的面板内容延迟渲染：即梦轮询到临近上限并始终取最新一版；
+  // 普通页面连续两次结果一致且已观察约 1.5 秒即提前结束，不再固定等待 4 秒。
   async function runWithRetry() {
     const deadline = Date.now() + 4000;
+    const startedAt = Date.now();
     const startUrl = location.href;
     const jimeng = location.hostname === 'jimeng.jianying.com';
     let best = null;
     let bestScore = -1;
+    let previous = null;
     while (true) {
       const result = readDocument();
       const score = denseLen(result.markdown) + denseLen(result.text);
       if (location.href !== startUrl) return { ...EMPTY, error: '页面已切换，请重新提取。' };
+      const stable = previous !== null && JSON.stringify(result) === JSON.stringify(previous);
+      previous = result;
+      // 即梦同一地址下正文会被整页替换，最新一版才是当前作品；其他页面只保留内容最多的结果
       if (jimeng || score > bestScore) { best = result; bestScore = score; }
-      const stable = best && JSON.stringify(result) === JSON.stringify(best);
-      if ((stable && Date.now() - deadline > -400) || Date.now() >= deadline) return best;
+      if (Date.now() >= deadline) return best;
+      if (jimeng ? Date.now() >= deadline - 400 : stable && Date.now() - startedAt >= 1500) return best;
       await new Promise((resolve) => setTimeout(resolve, 300));
     }
   }

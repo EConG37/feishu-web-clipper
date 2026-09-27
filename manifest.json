@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "网页剪藏到飞书多维表格",
-  "version": "1.7.7",
+  "version": "1.7.8",
   "description": "类似 Cubox 的网页剪藏：提取正文与封面图，按三级分类一键同步到飞书多维表格。",
-  "minimum_chrome_version": "110",
+  "minimum_chrome_version": "111",
   "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": ["<all_urls>"],
   "background": {

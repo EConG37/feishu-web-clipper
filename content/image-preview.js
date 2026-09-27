@@ -20,7 +20,12 @@
     if (!cache.has(src)) {
       cache.set(src, new Promise((resolve, reject) => { queue.push({ src, resolve, reject }); }));
       pump();
-      if (cache.size > 16) cache.delete(cache.keys().next().value);
+      if (cache.size > 16) {
+        const oldest = cache.keys().next().value;
+        // 被淘汰的条目可能还在队列中 pending；挂个空 catch 避免没有消费者时产生未处理拒绝
+        cache.get(oldest).catch(() => {});
+        cache.delete(oldest);
+      }
     }
     return cache.get(src);
   }

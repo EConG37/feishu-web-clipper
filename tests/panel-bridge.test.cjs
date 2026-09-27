@@ -7,10 +7,10 @@ function setup() {
   let listener, click;
   const calls = [];
   const store = {feishu_clip_config:{appId:'app',appSecret:'private-secret',appToken:'base',tableName:'收藏'},clip_categories:['自定义'],clip_category_models:{'自定义':['模型A']}};
-  const context = vm.createContext({Blob,AbortController,Uint8Array,TextDecoder,atob,setTimeout,clearTimeout,
+  const context = vm.createContext({Blob,AbortController,Uint8Array,TextDecoder,atob,setTimeout,clearTimeout,structuredClone,
     chrome:{
       storage:{local:{get:async()=>store}},
-      scripting:{executeScript:async(value)=>calls.push({injection:value})},
+      scripting:{executeScript:async(value)=>{calls.push({injection:value});return [{result:{videos:[]}}];}},
       action:{onClicked:{addListener:fn=>{click=fn;}},setBadgeText:async(value)=>calls.push({badge:value}),setBadgeBackgroundColor:async()=>{},setTitle:async(value)=>calls.push({title:value})},
       tabs:{sendMessage:async(id,msg,options)=>{calls.push({id,msg,options});return {ok:true,markdown:'正文',images:[]};}},
       runtime:{onMessage:{addListener:fn=>{listener=fn;}},getURL:p=>'chrome-extension://fixture/'+p,openOptionsPage:async()=>calls.push('settings')}
@@ -23,23 +23,31 @@ function setup() {
   const send = (type,sender={})=>new Promise(resolve=>listener({type},sender,resolve));
   return {send,calls,click};
 }
-test('panel config exposes category choices and connection status without credentials',async()=>{
+test('panel config exposes taxonomy and connection status without credentials',async()=>{
   const app=setup();
   const result=await app.send('CLIP Panel Config');
   assert.equal(result.configured,true);
-  assert.equal(result.categories[0],'自定义');
-  assert.equal(result.models['自定义'][0],'模型A');
-  assert.equal(result.destination,'收藏');
+  assert.equal(result.destination,'飞书多维表格');
+  assert.equal(result.autoClassify,true);
+  assert.ok(result.taxonomy['生图提示词'].children['人物']);
+  assert.ok(result.taxonomy['视频提示词'].children['成品提示词']);
   assert.equal('appSecret' in result,false);
   assert.equal(JSON.stringify(result).includes('private-secret'),false);
 });
 test('page reads target the sending tab main frame and reject missing tab',async()=>{
   const app=setup();
   assert.match((await app.send('CLIP Read Page')).error,/网页/);
-  await app.send('CLIP Read Page',{tab:{id:72},url:'https://example.com/article'});
-  assert.equal(app.calls.length,2);
-  for(const call of app.calls){assert.equal(call.id,72);assert.equal(call.options.frameId,0);}
-  assert.equal(app.calls[0].msg.pageUrl,'https://example.com/article');
+  const result=await app.send('CLIP Read Page',{tab:{id:72},url:'https://example.com/article'});
+  const messages=app.calls.filter(c=>c.msg);
+  assert.equal(messages.length,2);
+  for(const call of messages){assert.equal(call.id,72);assert.equal(call.options.frameId,0);}
+  assert.equal(messages[0].msg.type,'CLIP Extract Content');
+  assert.equal(messages[0].msg.pageUrl,'https://example.com/article');
+  const videoRead=app.calls.find(c=>c.injection);
+  assert.equal(videoRead.injection.target.tabId,72);
+  assert.deepEqual([...videoRead.injection.target.frameIds],[0]);
+  assert.equal(videoRead.injection.world,'MAIN');
+  assert.equal(result.content.markdown,'正文');
 });
 test('toolbar action injects once per invocation and opens the main frame panel',async()=>{
   const app=setup();
