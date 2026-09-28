@@ -12,23 +12,67 @@
   <div class="settings-layout">
   <aside class="sidebar">
     <div class="sidebar-label">偏好设置</div>
-    <nav aria-label="设置导航"><a href="#collection" class="active" aria-current="location"><span>01</span>收藏位置</a><a href="#connection"><span>02</span>飞书连接</a><a href="#organization"><span>03</span>分类与模型</a></nav>
-    <div class="sidebar-note"><span class="note-mark" aria-hidden="true">↳</span><strong>从这里，连接你的收藏库</strong><p>设置一次，以后在网页中选图、摘录，再保存到飞书。</p><a href="#usage-guide" id="guide-link">第一次使用？查看说明 ↗</a></div>
+    <nav aria-label="设置导航"><a href="#setup-guide" class="active" aria-current="location"><span>01</span>配置指南</a><a href="#collection"><span>02</span>收藏位置</a><a href="#connection"><span>03</span>飞书连接</a><a href="#organization"><span>04</span>分类与模型</a></nav>
+    <div class="sidebar-note"><span class="note-mark" aria-hidden="true">↳</span><strong>从这里，连接你的收藏库</strong><p>设置一次，以后在网页中选图、摘录，再保存到飞书。</p><a href="#setup-guide">第一次使用？查看配置指南 ↗</a></div>
   </aside>
   <main>
     <div class="page-heading"><span class="eyebrow">你的灵感收藏库</span><h1>让灵感，有序归档。</h1><p>连接飞书，定好分类。把喜欢的图片和提示词，放在触手可及的地方。</p></div>
     <form id="settings-form">
+      <section class="settings-section" id="setup-guide">
+        <div class="section-intro"><span class="step">01</span><h2>配置指南</h2><p>第一次使用？先在飞书侧完成下面 5 步，约 5 分钟，只需配置一次。</p></div>
+        <div class="section-fields">
+          <ol class="setup-steps">
+            <li class="setup-step">
+              <h3>复制多维表格模板，创建自己的副本</h3>
+              <p>打开<a href="https://zk5ckzju3h.feishu.cn/base/SCEObFKEvaNjNhsJT3bcZuoKnSe?from=from_copylink" target="_blank" rel="noopener noreferrer">网页剪藏库模板 ↗</a>，在右上角「…」中选择「创建副本」。名称可自定义，建议不加入多维表格空间，复制范围选「仅复制表格结构」即可。<strong>模板是只读母版，剪藏只能写入你的副本。</strong></p>
+              <div class="setup-shots">
+                <figure><a href="guide/copy-menu.webp" target="_blank" rel="noopener"><img src="guide/copy-menu.webp" loading="lazy" alt="多维表模板右上角「…」菜单，红框标出「创建副本」入口" /></a><figcaption>打开模板，右上角「…」→「创建副本」</figcaption></figure>
+                <figure><a href="guide/copy-dialog.webp" target="_blank" rel="noopener"><img src="guide/copy-dialog.webp" loading="lazy" alt="「复制多维表格」弹窗：名称可自定义，复制范围选择「仅复制表格结构」" /></a><figcaption>名称可自定义，复制范围选「仅复制表格结构」</figcaption></figure>
+              </div>
+            </li>
+            <li class="setup-step">
+              <h3>创建企业自建应用，开通三个权限</h3>
+              <p>打开<a href="https://open.feishu.cn/app?lang=zh-CN" target="_blank" rel="noopener noreferrer">飞书开放平台 ↗</a>，点击「创建企业自建应用」，名称和描述随意填写。进入应用后，在左侧「权限管理」→「开通权限」中开通 <code>bitable:app</code>、<code>bitable:app:readonly</code>、<code>drive:file:upload</code> 三个权限。</p>
+              <div class="setup-shots">
+                <figure><a href="guide/platform-home.webp" target="_blank" rel="noopener"><img src="guide/platform-home.webp" loading="lazy" alt="飞书开放平台「企业自建应用」页面，红框标出「创建企业自建应用」按钮" /></a><figcaption>打开开放平台，点「创建企业自建应用」</figcaption></figure>
+                <figure><a href="guide/app-create.webp" target="_blank" rel="noopener"><img src="guide/app-create.webp" loading="lazy" alt="创建企业自建应用弹窗：填写名称与描述后点击「创建」" /></a><figcaption>自定义名称和描述，点击「创建」</figcaption></figure>
+                <figure><a href="guide/perms-open.webp" target="_blank" rel="noopener"><img src="guide/perms-open.webp" loading="lazy" alt="应用后台左侧「权限管理」，红框标出「开通权限」按钮" /></a><figcaption>左侧「权限管理」→「开通权限」</figcaption></figure>
+                <figure><a href="guide/perms-done.webp" target="_blank" rel="noopener"><img src="guide/perms-done.webp" loading="lazy" alt="bitable:app、bitable:app:readonly、drive:file:upload 三个权限均显示「已开通」" /></a><figcaption>开通 bitable:app、bitable:app:readonly、drive:file:upload</figcaption></figure>
+              </div>
+            </li>
+            <li class="setup-step">
+              <h3>发布应用版本，复制凭据</h3>
+              <p>权限开通后点击「创建版本」，版本号和更新说明随意填写，保存并确认发布——<strong>未发布的应用无法调用接口</strong>。发布后在「凭证与基础信息」页复制 App ID 和 App Secret，稍后填入下方「03 飞书连接」。</p>
+              <div class="setup-shots single">
+                <figure><a href="guide/publish.webp" target="_blank" rel="noopener"><img src="guide/publish.webp" loading="lazy" alt="创建版本弹窗：填写版本号与更新说明后保存，确认发布" /></a><figcaption>填写版本号和更新说明，保存并确认发布</figcaption></figure>
+              </div>
+            </li>
+            <li class="setup-step">
+              <h3>把应用添加为副本的「文档应用」</h3>
+              <p>打开你的多维表副本，右上角「…」→「更多」→「添加文档应用」，搜索刚创建的应用并添加，<strong>确保权限状态为「可编辑」</strong>。跳过这一步，保存剪藏时会报无权限。</p>
+              <div class="setup-shots three">
+                <figure><a href="guide/docapp-menu.webp" target="_blank" rel="noopener"><img src="guide/docapp-menu.webp" loading="lazy" alt="多维表副本右上角「…」→「更多」菜单，红框标出「添加文档应用」" /></a><figcaption>副本右上角「…」→「更多」→「添加文档应用」</figcaption></figure>
+                <figure><a href="guide/docapp-add.webp" target="_blank" rel="noopener"><img src="guide/docapp-add.webp" loading="lazy" alt="「文档应用」弹窗中搜索刚创建的应用并添加" /></a><figcaption>搜索刚创建的应用，添加到文档应用</figcaption></figure>
+                <figure><a href="guide/docapp-editable.webp" target="_blank" rel="noopener"><img src="guide/docapp-editable.webp" loading="lazy" alt="已添加的应用，权限状态显示为「可编辑」" /></a><figcaption>确保权限状态为「可编辑」</figcaption></figure>
+              </div>
+            </li>
+            <li class="setup-step">
+              <h3>回到本页填写并保存</h3>
+              <p>把副本地址栏的完整链接填入「02 收藏位置」，App ID 和 App Secret 填入「03 飞书连接」，点击底部「保存设置」。随后可在「04 分类与模型」点「从飞书同步选项」读取表里的风格与模型，确认后再保存一次，即可开始剪藏。</p>
+            </li>
+          </ol>
+          <p class="help-text">截图来自发布者维护的<a href="https://zk5ckzju3h.feishu.cn/docx/BIxhdJC0GoOvr3xHtDlcztIqnRd" target="_blank" rel="noopener noreferrer">在线图文说明 ↗</a>，飞书界面更新时以在线版为准；以上截图均可点击放大查看。</p>
+        </div>
+      </section>
       <section class="settings-section" id="collection">
-        <div class="section-intro"><span class="step">01</span><h2>收藏位置</h2><p>选择保存提示词的多维表格。</p></div>
+        <div class="section-intro"><span class="step">02</span><h2>收藏位置</h2><p>选择保存提示词的多维表格。</p></div>
         <div class="section-fields">
           <div class="field"><label for="appToken">多维表格链接 <span class="required">必填</span></label><input id="appToken" type="text" required placeholder="粘贴你的飞书多维表格链接" /><p class="hint">支持完整 /base/ 链接或 app_token；剪藏时按分类自动写入对应数据表，无需指定表。</p></div>
           <details class="guide" id="usage-guide">
-            <summary>使用说明：复制模板、连接飞书与三级分类</summary>
+            <summary>使用说明：剪藏流程、三级分类与同步</summary>
             <ol>
-              <li><a href="https://zk5ckzju3h.feishu.cn/base/SCEObFKEvaNjNhsJT3bcZuoKnSe?from=from_copylink" target="_blank" rel="noopener noreferrer">打开新版提示词模板 ↗</a>，在右上角「…」中创建副本。模板按分类分表存储，具体以模板当前内容为准。</li>
-              <li>打开自己的副本，复制浏览器地址栏中的完整链接，填入上方。模板本身不能用来保存剪藏。</li>
-              <li>在下方填写飞书应用的 App ID 和 App Secret，并按「连接飞书」说明开通权限、发布应用。在副本右上角「…」→「添加文档应用」，添加同一个应用。</li>
-              <li>按需调整分类与模型，点击「保存设置」。打开要收藏的网页，点击插件图标：选择封面、编辑提示词，点击「下一步：确认分类」，检查本地推荐并调整分类、风格和模型，点击「保存到飞书」，记录会写入分类对应的数据表。</li>
+              <li>首次配置（复制模板副本、创建飞书应用、授权访问副本）请按 <a href="#setup-guide">「01 配置指南」</a> 逐步完成，再把副本链接、App ID、App Secret 填入本页并保存。</li>
+              <li>打开要收藏的网页，点击插件图标：选择封面、编辑提示词，点击「下一步：确认分类」，检查本地推荐并调整分类、风格和模型，点击「保存到飞书」，记录会写入分类对应的数据表。</li>
             </ol>
             <p><strong>三级分类与数据表</strong></p>
             <ul>
@@ -45,20 +89,27 @@
         </div>
       </section>
       <section class="settings-section" id="connection">
-        <div class="section-intro"><span class="step">02</span><h2>连接飞书</h2><p>使用你的企业自建应用。</p></div>
+        <div class="section-intro"><span class="step">03</span><h2>连接飞书</h2><p>使用你的企业自建应用。</p></div>
         <div class="section-fields">
           <div class="field"><label for="appId">App ID <span class="required">必填</span></label><input id="appId" type="text" required placeholder="cli_xxxxxxxx" autocomplete="off" spellcheck="false" /></div>
           <div class="field"><label for="appSecret">App Secret <span class="required">必填</span></label><input id="appSecret" type="password" required placeholder="输入应用密钥" autocomplete="off" /><p class="hint">凭据仅保存在本机浏览器中，用于连接飞书。</p></div>
-          <p class="help-text">在 <a href="https://open.feishu.cn/app" target="_blank" rel="noopener noreferrer">飞书开放平台 ↗</a> 获取应用凭据。开通多维表格读写（bitable:app）与素材上传权限后，发布应用版本。</p>
+          <p class="help-text">在 <a href="https://open.feishu.cn/app" target="_blank" rel="noopener noreferrer">飞书开放平台 ↗</a> 创建企业自建应用，开通 <code>bitable:app</code>、<code>bitable:app:readonly</code>、<code>drive:file:upload</code> 三个权限并发布版本；逐步图文指引见「01 配置指南」。</p>
         </div>
       </section>
       <section class="settings-section" id="organization">
-        <div class="section-intro"><span class="step">03</span><h2>分类与模型</h2><p>三级分类体系，决定剪藏时可选什么、写到哪里。</p></div>
+        <div class="section-intro"><span class="step">04</span><h2>分类与模型</h2><p>三级分类体系，决定剪藏时可选什么、写到哪里。</p></div>
         <div class="section-fields">
-          <p class="help-text">提示词类型 → 分类卡片 → 风格与模型。展开卡片即可调整，无需填写特殊格式。<br>先保存连接，再同步飞书选项，检查后保存。表格新增风格或模型后，再同步一次即可更新。</p>
-          <label class="auto-classify-setting"><input id="auto-classify" type="checkbox" checked /> 根据提示词自动推荐分类</label>
-          <p class="help-text">使用本地规则，不需要模型接口、不分析图片或视频。明确的分类会预先选好，可在编辑页直接保存；不确定项留空。手动改过的分类会保留，飞书里的 AI 字段可以继续负责入库后的整理。</p>
-          <button type="button" id="sync-schema">从飞书同步选项</button>
+          <div class="setting-row">
+            <label class="auto-classify-setting"><input id="auto-classify" type="checkbox" checked /> 根据提示词自动推荐分类</label>
+            <p class="setting-note">本地规则匹配，不调用模型接口、不分析图片或视频；明确的分类会预先选好，手动改过的分类会保留。</p>
+          </div>
+          <div class="sync-row">
+            <button type="button" id="sync-schema">从飞书同步选项</button>
+            <div class="sync-side">
+              <p class="setting-note">读取各绑定子表的风格与模型选项（只读，不修改飞书表格）。先保存「02 收藏位置」与「03 飞书连接」再同步；飞书表格的选项更新后，再同步一次即可。</p>
+              <p class="sync-status" id="sync-status" role="status" aria-live="polite" hidden></p>
+            </div>
+          </div>
           <div id="taxonomy-editor"></div>
         </div>
       </section>
@@ -66,6 +117,10 @@
     </form>
     <p class="page-footer">只收藏你想留下的。</p>
   </main>
+  </div>
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="截图预览">
+    <button type="button" class="lightbox-close" id="lightbox-close" aria-label="关闭预览">×</button>
+    <img id="lightbox-img" alt="" />
   </div>
   <script src="../shared/constants.js"></script>
   <script src="options.js"></script>

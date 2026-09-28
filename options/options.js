@@ -8,7 +8,8 @@ const sync = $('sync-schema');
 function message(text, error = false) { $('msg').textContent = text; $('msg').className = error ? 'err' : 'ok'; }
 function dirty() { $('save-state').textContent = '有未保存的修改'; }
 function field(label, value, onInput, choices) {
-  const wrap = document.createElement('label'); wrap.className = 'field'; wrap.append(document.createTextNode(label));
+  const wrap = document.createElement('label'); wrap.className = 'field';
+  const text = document.createElement('span'); text.className = 'field-label'; text.textContent = label; wrap.append(text);
   const input = document.createElement(choices ? 'select' : 'input'); input.setAttribute('aria-label', label);
   if (choices) for (const name of [...new Set([value || '', ...choices])]) { const o = document.createElement('option'); o.value = name; o.textContent = name || '未选择'; input.append(o); }
   input.value = value || ''; input.addEventListener('change', () => { onInput(input.value); dirty(); }); wrap.append(input); return wrap;
@@ -126,14 +127,16 @@ function renameGroup(oldName, rawNew) {
 }
 function render() {
   const expanded = new Map([...editor.querySelectorAll(".taxonomy-card")].map(card => [card.dataset.key, card.open]));
+  const renameOpen = new Set([...editor.querySelectorAll('.taxonomy-group')].filter(wrap => { const row = wrap.querySelector('.rename-row'); return row && !row.hidden; }).map(wrap => wrap.dataset.group));
   editor.replaceChildren();
-  editor.append(groupCreator());
   for (const [group, def] of Object.entries(taxonomy)) {
     const groupWrap = document.createElement('div'); groupWrap.className = 'taxonomy-group'; groupWrap.dataset.group = group;
-    const heading = document.createElement('h3'); heading.textContent = group; groupWrap.append(heading);
-    groupWrap.append(field('类型名称', group, value => { renameGroup(group, value); }));
-    const groupActions = document.createElement('div'); groupActions.className = 'group-actions';
-    const groupRemove = document.createElement('button'); groupRemove.type = 'button'; groupRemove.className = 'group-remove'; groupRemove.textContent = '删除这个提示词类型';
+    const header = document.createElement('div'); header.className = 'group-header';
+    const heading = document.createElement('h3'); heading.append(document.createTextNode(group));
+    const childCount = document.createElement('span'); childCount.className = 'group-count'; childCount.textContent = `${Object.keys(def.children).length} 个分类`; heading.append(childCount);
+    const tools = document.createElement('div'); tools.className = 'group-tools';
+    const renameToggle = document.createElement('button'); renameToggle.type = 'button'; renameToggle.className = 'group-rename'; renameToggle.textContent = '改名';
+    const groupRemove = document.createElement('button'); groupRemove.type = 'button'; groupRemove.className = 'group-remove'; groupRemove.textContent = '删除类型';
     groupRemove.addEventListener('click', () => {
       const count = Object.keys(def.children || {}).length;
       if (!confirm(`确定删除类型「${group}」及其下 ${count} 个分类吗？保存设置后，剪藏面板将不再显示它们。`)) return;
@@ -141,12 +144,21 @@ function render() {
       for (const key of [...bindingWarnings.keys()]) { try { if (JSON.parse(key)[0] === group) bindingWarnings.delete(key); } catch { /* 忽略损坏的键 */ } }
       dirty(); render(); message(`已删除类型「${group}」，点击“保存设置”后生效。`);
     });
-    groupActions.append(groupRemove); groupWrap.append(groupActions);
-    groupWrap.append(categoryCreator(group, def));
+    tools.append(renameToggle, groupRemove); header.append(heading, tools); groupWrap.append(header);
+    const renameRow = document.createElement('div'); renameRow.className = 'rename-row'; renameRow.hidden = !renameOpen.has(group);
+    renameRow.append(field('类型名称', group, value => { renameGroup(group, value); }));
+    const renameNote = document.createElement('p'); renameNote.className = 'rename-note'; renameNote.textContent = '改名后需在该类型绑定的各子表「分类」多选字段里补上同名选项，否则剪藏保存会失败。'; renameRow.append(renameNote);
+    renameToggle.addEventListener('click', () => { renameRow.hidden = !renameRow.hidden; if (!renameRow.hidden) renameRow.querySelector('input')?.focus(); });
+    groupWrap.append(renameRow);
     for (const [name, child] of Object.entries(def.children)) {
-      const card = document.createElement('details'); card.className = 'taxonomy-card'; card.dataset.key = JSON.stringify([group, name]); card.open = expanded.get(card.dataset.key) ?? (name === '成品提示词'); const title = document.createElement('summary'); title.textContent = `${name} · ${(child.styles || []).length} 个风格 / ${(child.models || []).length} 个模型`; card.append(title);
+      const card = document.createElement('details'); card.className = 'taxonomy-card'; card.dataset.key = JSON.stringify([group, name]); card.open = expanded.get(card.dataset.key) ?? (name === '成品提示词');
+      const title = document.createElement('summary');
+      const cardName = document.createElement('span'); cardName.className = 'card-name'; cardName.textContent = name;
+      const cardMeta = document.createElement('span'); cardMeta.className = 'card-meta'; cardMeta.textContent = `${(child.styles || []).length} 个风格 / ${(child.models || []).length} 个模型`;
+      title.append(cardName, cardMeta); card.append(title);
       const table = cloud?.tables.find(t => t.name === child.table);
-      card.append(field('目标子表', child.table, value => {
+      const grid = document.createElement('div'); grid.className = 'card-grid';
+      grid.append(field('目标子表', child.table, value => {
         const t = cloud?.tables.find(x => x.name === value);
         // Store the user choice independently of optional schema hydration.
         child.table = value;
@@ -163,8 +175,9 @@ function render() {
         }
         render();
       }, cloud?.tables.map(t => t.name)));
+      grid.append(field('写入主分类', child.mainValue ?? ((child.prefix ?? def.prefix) ? `${child.prefix ?? def.prefix}-${name}` : name), value => { child.mainValue = value; }, table?.fields.find(f => f.field_name === '主分类')?.property?.options?.map(o => o.name)));
+      card.append(grid);
       if (bindingWarnings.has(card.dataset.key)) { const warning = document.createElement('p'); warning.className = 'help-text err'; warning.setAttribute('role', 'status'); warning.textContent = bindingWarnings.get(card.dataset.key); card.append(warning); }
-      card.append(field('写入主分类', child.mainValue ?? ((child.prefix ?? def.prefix) ? `${child.prefix ?? def.prefix}-${name}` : name), value => { child.mainValue = value; }, table?.fields.find(f => f.field_name === '主分类')?.property?.options?.map(o => o.name)));
       tags(card, '风格', child, 'styles', table?.fields.find(f => f.field_name === '子分类')?.property?.options?.map(o => o.name));
       tags(card, '模型', child, 'models', table?.fields.find(f => f.field_name === '使用模型')?.property?.options?.map(o => o.name));
       const actions = document.createElement('div'); actions.className = 'category-card-actions';
@@ -176,12 +189,15 @@ function render() {
       actions.append(remove); card.append(actions);
       groupWrap.append(card);
     }
+    groupWrap.append(categoryCreator(group, def));
     editor.append(groupWrap);
   }
+  editor.append(groupCreator());
 }
 async function load() { const s = await chrome.storage.local.get([CONFIG_KEY,TAXONOMY_KEY]); const c = s[CONFIG_KEY] || {}; $('appId').value = c.appId || ''; $('appSecret').value = c.appSecret || ''; $('appToken').value = c.appTokenRaw || c.appToken || ''; $('auto-classify').checked = c.autoClassify !== false; taxonomy = migrateTaxonomy(normalizeTaxonomy(s[TAXONOMY_KEY])); render(); }
+function syncStatus(text, state) { const el = $('sync-status'); el.textContent = text; el.dataset.state = state || ''; el.hidden = !text; }
 sync.addEventListener('click', async () => {
-  sync.disabled = true;
+  sync.disabled = true; syncStatus('正在从飞书读取表格与字段选项…', 'pending');
   try {
     const stored = (await chrome.storage.local.get(CONFIG_KEY))[CONFIG_KEY];
     if (!stored || stored.appToken !== extractAppToken($('appToken').value) || stored.appId !== $('appId').value.trim() || stored.appSecret !== $('appSecret').value.trim()) throw new Error('请先保存当前连接配置，再同步');
@@ -195,10 +211,12 @@ sync.addEventListener('click', async () => {
       if (!t) throw new Error(`未找到子表「${child.table}」。已载入子表下拉，请修正目标后重新同步`);
       hydrateChild(group, def, name, child, t); child.table = t.name;
     }
-    cloud = result; taxonomy = next; render(); dirty(); message('已读取所选子表的风格和模型，请检查后保存。远端未修改。');
-  } catch (e) { render(); message(e.message, true); } finally { sync.disabled = false; }
+    cloud = result; taxonomy = next; render(); dirty();
+    syncStatus(`已读取 ${result.tables.length} 张子表的风格与模型，请检查后保存。`, 'ok');
+    message('已读取所选子表的风格和模型，请检查后保存。远端未修改。');
+  } catch (e) { render(); syncStatus(`同步失败：${e.message}`, 'err'); message(e.message, true); } finally { sync.disabled = false; }
 });
-$('appToken').addEventListener('input', () => { cloud = null; render(); });
+$('appToken').addEventListener('input', () => { cloud = null; syncStatus('', ''); render(); });
 $('settings-form').addEventListener('submit', async event => {
   event.preventDefault(); $('save').disabled = true;
   try {
@@ -215,7 +233,6 @@ $('settings-form').addEventListener('submit', async event => {
   } catch(e) { message(e.message, true); } finally { $('save').disabled = false; }
 });
 $('settings-form').addEventListener('input', dirty);
-$('guide-link').addEventListener('click', () => { $('usage-guide').open = true; });
 document.addEventListener('DOMContentLoaded', () => { load().catch(e => message(e.message, true)); }, {once:true});
 
 // Reflect anchor navigation, including direct links and browser back/forward.
@@ -231,3 +248,19 @@ function updateNavigation() {
 }
 window.addEventListener('hashchange', updateNavigation);
 updateNavigation();
+
+// 配置指南截图：页内悬浮预览，点击空白处、× 或 Esc 关闭
+const lightbox = $('lightbox'), lightboxImg = $('lightbox-img');
+function closeLightbox() { lightbox.hidden = true; lightboxImg.removeAttribute('src'); }
+for (const link of document.querySelectorAll('.setup-shots a')) {
+  link.addEventListener('click', event => {
+    event.preventDefault();
+    lightboxImg.src = link.getAttribute('href');
+    lightboxImg.alt = link.querySelector('img')?.alt || '';
+    lightbox.hidden = false;
+    $('lightbox-close').focus();
+  });
+}
+$('lightbox-close').addEventListener('click', closeLightbox);
+lightbox.addEventListener('click', event => { if (event.target === lightbox) closeLightbox(); });
+document.addEventListener('keydown', event => { if (event.key === 'Escape' && !lightbox.hidden) closeLightbox(); });

@@ -4,7 +4,7 @@
 const fs = require('fs'), path = require('path'), os = require('os'), http = require('http');
 const { chromium } = require(os.homedir() + '/AppData/Roaming/npm/node_modules/playwright');
 const root = path.resolve(__dirname, '..');
-const MIME = { '.js': 'text/javascript', '.html': 'text/html', '.css': 'text/css', '.png': 'image/png', '.json': 'application/json' };
+const MIME = { '.js': 'text/javascript', '.html': 'text/html', '.css': 'text/css', '.png': 'image/png', '.webp': 'image/webp', '.json': 'application/json' };
 const handler = (req, res) => {
   const file = path.join(root, decodeURIComponent(req.url.split('?')[0]));
   if (!file.startsWith(root) || !fs.existsSync(file) || !fs.statSync(file).isFile()) { res.writeHead(404); res.end(); return; }

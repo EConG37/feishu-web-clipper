@@ -32,6 +32,7 @@ assert.equal(migrated['视频提示词'].children['成品提示词'].styles.leng
     assert.equal(await page.locator('.taxonomy-card').count(),9);
     await page.locator('#sync-schema').click();
     await page.waitForFunction(()=>document.querySelector('#msg').textContent.includes('已读取'));
+    assert((await page.locator('#sync-status').textContent()).includes('已读取'),'sync success shows inline status');
     await page.evaluate(() => {
       const source = cloud.tables.find(table => table.name === '视频参数-影视效应');
       const creative = structuredClone(source); creative.name = '视频提示词-创意视频';
