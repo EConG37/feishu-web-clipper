@@ -12,7 +12,7 @@
   <div class="settings-layout">
   <aside class="sidebar">
     <div class="sidebar-label">偏好设置</div>
-    <nav aria-label="设置导航"><a href="#setup-guide" class="active" aria-current="location"><span>01</span>配置指南</a><a href="#collection"><span>02</span>收藏位置</a><a href="#connection"><span>03</span>飞书连接</a><a href="#organization"><span>04</span>分类与模型</a></nav>
+    <nav aria-label="设置导航"><a href="#setup-guide" class="active" aria-current="location"><span>01</span>配置指南</a><a href="#collection"><span>02</span>收藏位置</a><a href="#connection"><span>03</span>飞书连接</a><a href="#organization"><span>04</span>分类与模型</a><a href="#desktop-app" class="nav-desktop"><span>05</span>桌面端软件</a></nav>
     <div class="sidebar-note"><span class="note-mark" aria-hidden="true">↳</span><strong>从这里，连接你的收藏库</strong><p>设置一次，以后在网页中选图、摘录，再保存到飞书。</p><a href="#setup-guide">第一次使用？查看配置指南 ↗</a></div>
   </aside>
   <main>
@@ -111,6 +111,26 @@
             </div>
           </div>
           <div id="taxonomy-editor"></div>
+        </div>
+      </section>
+      <section class="settings-section" id="desktop-app">
+        <div class="section-intro"><span class="step step-desktop">05</span><h2 class="desktop-title">桌面端软件</h2><p>配套桌面应用「提示词助手」：本插件负责“存”，它负责“用”——在电脑桌面随手复制已剪藏的提示词。</p></div>
+        <div class="section-fields">
+          <div class="desktop-links">
+            <a class="desktop-link" href="https://zk5ckzju3h.feishu.cn/docx/YQ5jdzEmQojhaQxzdjncwr7enqe?from=from_copylink" target="_blank" rel="noopener noreferrer"><strong>飞书介绍文档</strong><span>提示词助手 · 图文说明与下载指引 ↗</span></a>
+            <a class="desktop-link" href="https://github.com/EConG37/prompt-assistant" target="_blank" rel="noopener noreferrer"><strong>Windows 版</strong><span>GitHub 仓库，Releases 下载安装包 ↗</span></a>
+            <a class="desktop-link" href="https://github.com/Anna-YC/prompt-assistant" target="_blank" rel="noopener noreferrer"><strong>Mac 版</strong><span>GitHub 仓库，Releases 下载安装包 ↗</span></a>
+          </div>
+          <div class="desktop-intro">
+            <div class="desktop-flow">浏览器剪藏插件（存：网页上的提示词 / 图片 / 视频一键写入多维表） → 飞书多维表（数据中台） → 提示词助手（用：托盘速查、一键复制、封面与视频预览）</div>
+            <ol>
+              <li>下载安装「提示词助手」（Windows / Mac 见上方链接）。</li>
+              <li>首次打开：设置 → 数据源 → 环境自检 →「一键自动配置」，自动安装 lark-cli 并引导登录飞书，无需装 Node。</li>
+              <li>把本页「02 收藏位置」里同一个多维表副本链接，粘贴到助手的 设置 → 数据源 → 解析 → 立即同步；表名含「提示词」的数据表会自动接入，无需手工配表。</li>
+              <li>日常使用：右键托盘图标弹出常用提示词菜单，点击即复制；左键托盘或屏幕右缘悬浮把手展开面板，支持搜索、按分类筛选、★ 设为常用。</li>
+            </ol>
+            <p>剪藏写入哪张表，助手就同步哪张表——在浏览器里收藏灵感，回桌面随手取用。</p>
+          </div>
         </div>
       </section>
       <div class="actions"><div class="save-copy"><strong id="save-state">按你的习惯，整理每一份灵感</strong><span id="msg" role="status" aria-live="polite">设置保存在当前浏览器中</span></div><button id="save" class="primary" type="submit">保存设置 <span aria-hidden="true">→</span></button></div>

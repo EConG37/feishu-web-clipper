@@ -193,3 +193,23 @@ textarea { min-height: 92px; line-height: 1.9; }
 .lightbox img { max-width: 100%; max-height: 100%; border-radius: 10px; background: #fff; box-shadow: 0 18px 60px #00000059; }
 .lightbox-close { position: absolute; top: 18px; right: 22px; width: 38px; height: 38px; border: none; border-radius: 50%; background: #ffffff24; color: #fff; font-size: 20px; line-height: 1; cursor: pointer; }
 @media (hover: hover) { .lightbox-close:hover { background: #ffffff3d; } }
+
+/* 05 桌面端软件：黄色标识 + 链接卡片 */
+.sidebar nav a.nav-desktop { color: #b8890a; }
+.sidebar nav a.nav-desktop span { color: #cfa31e; }
+.sidebar nav a.nav-desktop.active { background: #fef6da; border-color: #f2df9e; color: #9a6f06; font-weight: 600; }
+.sidebar nav a.nav-desktop.active span { color: #b8890a; }
+@media (hover: hover) { .sidebar nav a.nav-desktop:not(.active):hover { background: #fdf6e0; } }
+.step-desktop { background: #fdf3d7; color: #b8890a; }
+h2.desktop-title { color: #b8890a; }
+.desktop-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+.desktop-link { display: block; border: 1px solid #f0e2ae; border-radius: 10px; padding: 12px 14px; background: #fffdf4; text-decoration: none; transition: border-color 120ms; }
+.desktop-link strong { display: block; color: #9a6f06; font-size: 12px; }
+.desktop-link span { display: block; margin-top: 4px; color: #a0a3b1; font-size: 10px; line-height: 1.7; }
+@media (hover: hover) { .desktop-link:hover { border-color: #d9b45c; } }
+@media (max-width: 700px) { .desktop-links { grid-template-columns: 1fr; } }
+.desktop-intro { border: 1px solid var(--line); border-radius: 10px; padding: 14px; background: #fbfbfe; }
+.desktop-flow { padding: 10px 12px; background: #fef9e2; border: 1px solid #f5e6b3; border-radius: 8px; color: #8a6a10; font-size: 11px; line-height: 1.8; }
+.desktop-intro ol { padding-left: 18px; color: #6d7180; font-size: 12px; line-height: 1.9; margin: 12px 0; }
+.desktop-intro ol li { padding: 2px 0; }
+.desktop-intro p { color: #6d7180; font-size: 12px; line-height: 1.9; margin: 10px 0 0; }

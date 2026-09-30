@@ -5,8 +5,8 @@ async (page) => {
   await page.goto('chrome-extension://'+extensionId+'/options/options.html');
   await page.setViewportSize({width:1380,height:1000});
 
-  // 01 配置指南：侧栏 4 个分区、5 个步骤、10 张本地截图（可点击放大）
-  assert(await page.locator('.sidebar nav a').count()===4,'sidebar lists four sections');
+  // 01 配置指南：侧栏 5 个分区、5 个步骤、10 张本地截图（可点击放大）
+  assert(await page.locator('.sidebar nav a').count()===5,'sidebar lists five sections');
   assert(await page.locator('#setup-guide .setup-step').count()===5,'setup guide has five steps');
   assert(await page.locator('#setup-guide .setup-shots img').count()===10,'setup guide embeds ten screenshots');
   const shots=await page.locator('#setup-guide .setup-shots img').evaluateAll(els=>els.map(el=>el.getAttribute('src')));
@@ -14,6 +14,17 @@ async (page) => {
   const guideText=await page.locator('#setup-guide').textContent();
   for (const scope of ['bitable:app','bitable:app:readonly','drive:file:upload']) assert(guideText.includes(scope),'guide lists scope '+scope);
   assert((await page.locator('#connection').textContent()).includes('drive:file:upload'),'connection help lists upload scope');
+
+  // 05 桌面端软件：黄色导航入口、三个链接置顶、介绍在使用逻辑之前
+  const desktopNav=page.locator('.sidebar nav a[href="#desktop-app"]');
+  assert(await desktopNav.count()===1,'sidebar has desktop app entry');
+  assert(await desktopNav.evaluate(el=>getComputedStyle(el).color==='rgb(184, 137, 10)'),'desktop nav uses yellow text');
+  const desktopLinks=await page.locator('#desktop-app .desktop-links a').evaluateAll(els=>els.map(a=>a.getAttribute('href')));
+  assert(desktopLinks.some(h=>h&&h.includes('zk5ckzju3h.feishu.cn/docx/YQ5jdzEmQojhaQxzdjncwr7enqe')),'desktop section links feishu doc');
+  assert(desktopLinks.some(h=>h==='https://github.com/EConG37/prompt-assistant'),'desktop section links windows repo');
+  assert(desktopLinks.some(h=>h==='https://github.com/Anna-YC/prompt-assistant'),'desktop section links mac repo');
+  assert(await page.locator('#desktop-app .section-fields > :first-child').evaluate(el=>el.classList.contains('desktop-links')),'desktop links sit above the intro');
+  assert((await page.locator('#desktop-app .desktop-flow').textContent()).includes('数据中台'),'desktop intro explains store-and-use flow');
 
   // 配置指南截图：页内悬浮预览，不跳转新页面，可关闭
   await page.locator('#setup-guide .setup-shots a').first().click();
