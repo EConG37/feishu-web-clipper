@@ -66,14 +66,16 @@
   }
 
   function collect() {
+    const modal = document.activeElement?.closest('dialog:modal') || [...document.querySelectorAll('dialog:modal')].at(-1);
     const metaRaw =
       document.querySelector('meta[property="og:image"]')?.content ||
       document.querySelector('meta[name="twitter:image"]')?.content ||
       document.querySelector('link[rel="image_src"]')?.href;
-    const metaCandidate = candidateFromMeta(metaRaw);
+    const metaCandidate = modal ? null : candidateFromMeta(metaRaw);
 
     const seen = new Set(metaCandidate ? [metaCandidate.src] : []);
-    const imgCandidates = [...document.images]
+    const imgCandidates = [...(modal ? modal.querySelectorAll('img') : document.images)]
+      .filter(img => !modal || (visibleArea(img) > 0 && getComputedStyle(img).visibility !== 'hidden'))
       .map(candidateFromImg)
       .filter(Boolean)
       .filter((c) => {

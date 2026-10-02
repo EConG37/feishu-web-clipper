@@ -8,6 +8,7 @@
   let selectedGroup = "", selectedSubcat = "", selectedStyle = "";
   let manualClassification = false, autoClassify = true, classifyTimer = null, classificationNote = '';
   let busy = false, saved = false, ready = false, configured = false, revision = 0, contentEdited = false;
+  let titleEdited = false, layerObserver, layerFrame = 0;
   const $ = id => root.getElementById(id);
   const request = async (type, extra = {}) => {
     const result = await chrome.runtime.sendMessage({ type, ...extra });
@@ -31,15 +32,29 @@
   }
   function close() {
     if (!host || host.hidden) return;
+    layerObserver?.disconnect();
+    cancelAnimationFrame(layerFrame); layerFrame = 0;
     if (host.hidePopover && host.matches(":popover-open")) host.hidePopover();
     host.hidden = true;
     $('video-preview').pause();
     previousFocus?.focus?.({ preventScroll: true });
   }
+  function syncLayer() {
+    if (!host || host.hidden) return;
+    // A popover outside a native modal is still inert, even above it in the top layer.
+    // Keep the panel inside the active modal so pointer events and focus work.
+    const parent = document.activeElement?.closest('dialog:modal') || [...document.querySelectorAll('dialog:modal')].at(-1) || document.documentElement;
+    if (host.parentElement !== parent) {
+      if (host.hidePopover && host.matches(':popover-open')) host.hidePopover();
+      parent.append(host);
+    }
+    if (host.showPopover && !host.matches(':popover-open')) host.showPopover();
+  }
   function show() {
     previousFocus = document.activeElement;
     host.hidden = false;
-    if (host.showPopover && !host.matches(":popover-open")) host.showPopover();
+    syncLayer();
+    layerObserver.observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ['open'] });
     requestAnimationFrame(() => (saved ? $("primary") : step === 1 ? $("clip-title") : $("back")).focus({ preventScroll: true }));
   }
   function updateCount() { $("word-count").textContent = `${$("clip-content").value.length.toLocaleString()} 字`; }
@@ -327,7 +342,7 @@
     pageUrl = location.href;
     clearTimeout(classifyTimer); classifyTimer=null; manualClassification=false; classificationNote='';
     videos = []; videoSrc = ''; saveFingerprint = ''; requestId = ''; renderVideos();
-    selectedSrc = null; selectedGroup = ""; selectedSubcat = ""; selectedStyle = ""; selectedModel = ""; saved = false; ready = false; contentEdited = false;
+    selectedSrc = null; selectedGroup = ""; selectedSubcat = ""; selectedStyle = ""; selectedModel = ""; saved = false; ready = false; contentEdited = false; titleEdited = false;
     taxonomy = {}; // 强制重渲染，避免单页跳转后残留旧选中态
     $("clip-title").value = document.title;
     $("clip-content").value = "";
@@ -340,6 +355,7 @@
     if (pageResult.status === "fulfilled") {
       const data = pageResult.value;
       renderVideos(data.media);
+      if (data.content?.title && !titleEdited) $("clip-title").value = data.content.title;
       if (!contentEdited) $("clip-content").value = data.content?.markdown || data.content?.text || "";
       try { renderImages(data.images); } catch (error) { status(error.message, true); }
       status(data.content?.error || data.content?.warning || data.images?.error || "");
@@ -405,6 +421,10 @@
     const template = document.createElement("template"); template.innerHTML = html;
     root.append(template.content.cloneNode(true));
     document.documentElement.append(host);
+    layerObserver = new MutationObserver(() => {
+      if (layerFrame || host.hidden) return;
+      layerFrame = requestAnimationFrame(() => { layerFrame = 0; syncLayer(); });
+    });
     $("close").addEventListener("click", close);
     $("settings").addEventListener("click", openSettings);
     $("connection").addEventListener("click", openSettings);
@@ -418,6 +438,7 @@
     $('video-choice').addEventListener('change',updateVideo);
     $("clear-image").addEventListener("click", () => { selectedSrc = null; updateImage(); });
     $("clip-content").addEventListener("input", () => { contentEdited = true; promptChanged(); });
+    $("clip-title").addEventListener("input", () => { titleEdited = true; });
     root.addEventListener("keydown", event => {
       if (event.key === "Escape") { event.preventDefault(); close(); }
       else if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); primary(); }

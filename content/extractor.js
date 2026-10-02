@@ -276,6 +276,14 @@
 
   function readDocument() {
     try {
+      if (location.hostname === 'gallery.work-fisher.com') {
+        const viewer = document.querySelector('dialog#viewer:modal');
+        const prompts = viewer ? [...viewer.querySelectorAll('textarea#generate-prompt')].filter(isRendered) : [];
+        const text = prompts.length === 1 ? prompts[0].value.trim() : '';
+        return { ...EMPTY, markdown: text, text,
+          title: viewer?.querySelector('#viewer-title')?.textContent.trim() || '',
+          warning: text ? '' : '未读取到当前作品提示词，请等待作品详情加载后重新打开剪藏，或手动填写。' };
+      }
       // 即梦也会在首页原地址打开作品弹层。整个站点禁止回退到文章/推荐流。
       if (location.hostname === 'jimeng.jianying.com') return readJimeng();
       if (location.hostname === 'ahaprompt.app' && /\/prompt\//.test(location.pathname) || /^(www\.)?meigen\.ai$/.test(location.hostname) && /^\/video\//.test(location.pathname)) {
@@ -353,6 +361,7 @@
     const startedAt = Date.now();
     const startUrl = location.href;
     const jimeng = location.hostname === 'jimeng.jianying.com';
+    const fisher = location.hostname === 'gallery.work-fisher.com';
     let best = null;
     let bestScore = -1;
     let previous = null;
@@ -363,7 +372,7 @@
       const stable = previous !== null && JSON.stringify(result) === JSON.stringify(previous);
       previous = result;
       // 即梦同一地址下正文会被整页替换，最新一版才是当前作品；其他页面只保留内容最多的结果
-      if (jimeng || score > bestScore) { best = result; bestScore = score; }
+      if (jimeng || fisher || score > bestScore) { best = result; bestScore = score; }
       if (Date.now() >= deadline) return best;
       if (jimeng ? Date.now() >= deadline - 400 : stable && Date.now() - startedAt >= 1500) return best;
       await new Promise((resolve) => setTimeout(resolve, 300));

@@ -203,7 +203,8 @@ async function collectClipVideoPage(expectedUrl) {
   const aha = host === 'ahaprompt.app' && /\/prompt\//.test(path);
   const meigen = /^(www\.)?meigen\.ai$/.test(host) && /^\/video\/\d+/.test(path);
   if (!aha && !meigen) {
-    let players = [...document.querySelectorAll('video')];
+    const scope = document.activeElement?.closest('dialog:modal') || [...document.querySelectorAll('dialog:modal')].at(-1) || document;
+    let players = [...scope.querySelectorAll('video')];
     const douyin = /(^|\.)douyin\.com$/.test(host);
     const note = /(^|\.)xiaohongshu\.com$/.test(host);
     const sph = /(^|\.)channels\.weixin\.qq\.com$/.test(host);
